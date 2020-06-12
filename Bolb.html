@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+
+<body>
+    <img src="" alt="">
+    <script>
+        /*
+         *大文件对大文件进行分割，分片上传
+         *File对象是一个特殊的Blob对象
+         */
+        function sliceFile() {
+            var file = new File(["a".repeat(1000)], "text.txt");
+            const chunkSize = 40000;
+            const url = "https://httpbin.org/post";
+
+            async function chunkedUpload() {
+                for (let start = 0; start < file.size; start += chunkSize) {
+                    const chunk = file.slice(start, start + chunkSize + 1);
+                    const fd = new FormData();
+                    fd.append("data", chunk);
+
+                    await fetch(url, {
+                        method: "post",
+                        body: fd
+                    }).then((res) =>
+                        res.text()
+                    );
+                }
+            }
+        }
+
+        //我们可以使用以下方法从互联网上下载数据并将数据存储到 Blob 对象中，比如：
+
+        const downloadBlob = (url, callback) => {
+            const xhr = new XMLHttpRequest()
+            xhr.open('GET', url)
+            xhr.responseType = 'blob'
+            xhr.onload = () => {
+                callback(xhr.response)
+            }
+            xhr.send(null)
+        }
+
+        //使用 fetch API 获取线上图片并本地显示，具体实现如下：
+        function fetchImage() {
+            const myImage = document.querySelector('img');
+            const myRequest = new Request(
+                'https://timgsa.baidu.com/timg?image&quality=80&size=b9999_10000&sec=1591936715141&di=ac68fa29f50ccde14f806d5096233234&imgtype=0&src=http%3A%2F%2Fimg.go007.com%2F2016%2F07%2F11%2F3374ff70d946ad29_3.jpg'
+            );
+
+            fetch(myRequest)
+                .then(function (response) {
+                    return response.blob();
+                })
+                .then(function (myBlob) {
+                    let objectURL = URL.createObjectURL(myBlob);
+                    myImage.src = objectURL;
+                });
+        }
+
+        //服务器处理dataurl base64格式的图片
+        function upload() {
+            const app = require('express')();
+            app.post('/upload', function (req, res) {
+                let imgData = req.body.imgData; // 获取POST请求中的base64图片数据
+                //let base64Data = imgData.replace(/^data:image\/\w+;base64,/, "");
+                let base64Data=req.body.imagData.replace(/^data:image\/w+;base64,/,"    ");
+                let dataBuffer = Buffer.from(base64Data, 'base64');
+                fs.writeFile("image.png", dataBuffer, function (err) {
+                    if (err) {
+                        res.send(err);
+                    } else {
+                        res.send("图片上传成功！");
+                    }
+                });
+            });
+        }
+    </script>
+</body>
+
+</html>
