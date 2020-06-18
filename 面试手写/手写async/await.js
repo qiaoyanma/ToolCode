@@ -23,3 +23,23 @@ function autoGenerator(genFunc){
         });
     }
 }
+
+function promiseall(arr=[]){
+    return new Promise((resolve,reject)=>{
+        if(arr.length===0){
+            resolve([]);
+        }else{
+           let result=[],num=0;
+           for(var i=0;i<arr.length;i++){
+               Promise.resolve(arr[i]).then(value=>{
+                result[num++]=value;
+                if(num===arr.length){
+                    resolve(result);
+                }
+               },err=>{
+                   reject(err);
+               });
+           }
+        }
+    })
+}

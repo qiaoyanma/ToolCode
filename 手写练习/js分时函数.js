@@ -1,4 +1,4 @@
-//分式函数
+//分时函数
 function timeTrunk(arr, fn, count) {
     let t;
     let start = function () {

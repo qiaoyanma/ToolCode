@@ -3,7 +3,7 @@ function deepClone(target,map=new WeakMap()){
     if(map.get(target)){
         return target;//防止循环引用的问题导致栈溢出
     }
-    if(!isObject){
+    if(!isObject(target)){
         return target;
     }
     map.set(target,true);
