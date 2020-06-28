@@ -43,3 +43,37 @@ function promiseall(arr=[]){
         }
     })
 }
+
+let asyncLimit=function(arr=[],limit){
+    return new Promise((resolve,reject)=>{
+        if(arr.length===0){
+            resolve();
+        }
+        let count=0;
+        let stop=false;
+        let start=function(){
+            if(stop){
+                return;
+            }
+            let task=arr.shift();
+            Promise.resolve(task).then((val)=>{
+                count++;
+                if(count===arr.length){
+                    resolve();
+                }else{
+                    start();
+                }
+            },err=>{
+                task.error++;
+                if(task.error<3){
+                    arr.push(task);
+                }else{
+                    stop=true;
+                }
+            })
+        }
+        while(limit--){
+            start();
+        }
+    });
+}
